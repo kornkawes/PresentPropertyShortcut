@@ -1,0 +1,496 @@
+import React, { useMemo, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  Search,
+  SlidersHorizontal,
+  Smartphone,
+  Database,
+  Users,
+  Bot,
+  TrendingUp,
+  CheckCircle2,
+  ArrowRight,
+  Home,
+  Building2,
+  Layers,
+  Sparkles,
+  Clock3,
+  ChevronRight,
+  PlayCircle,
+  BarChart3,
+} from "lucide-react";
+
+const sections = [
+  { id: "overview", label: "Overview", icon: Home },
+  { id: "problem", label: "Pain Point", icon: Clock3 },
+  { id: "demo", label: "Live Demo", icon: Smartphone },
+  { id: "features", label: "Features", icon: Layers },
+  { id: "impact", label: "Business Impact", icon: TrendingUp },
+  { id: "roadmap", label: "AI Roadmap", icon: Bot },
+  { id: "proposal", label: "Proposal", icon: CheckCircle2 },
+];
+
+const features = [
+  {
+    id: "smart-search",
+    title: "Smart Property Search",
+    subtitle: "ค้นหาทรัพย์จากข้อมูลที่เซลล์ใช้จริง",
+    icon: Search,
+    problem: "ก่อนหน้านี้เซลล์ต้องไล่ค้นหาข้อมูลจากหลายจุด ทำให้เสียเวลาและตอบลูกค้าได้ช้า",
+    solution: "รวม Search หลักไว้จุดเดียว เพื่อค้นหาจากรหัสทรัพย์ ชื่อหมู่บ้าน เบอร์โทร หรือชื่อเจ้าของ",
+    demo: "ลองค้นหา: NAT006 / บางกอก บูเลอวาร์ด / เบอร์ลูกค้า",
+    result: "เซลล์เข้าถึงทรัพย์ที่ต้องการได้เร็วขึ้น ลดเวลาค้นหาข้อมูลซ้ำ ๆ",
+  },
+  {
+    id: "advanced-filter",
+    title: "Advanced Filter",
+    subtitle: "กรองทรัพย์แบบละเอียดเพื่อ match ลูกค้าเร็วขึ้น",
+    icon: SlidersHorizontal,
+    problem: "เวลาลูกค้ามี Requirement ชัดเจน เซลล์ต้องกรองเองแบบ Manual",
+    solution: "เพิ่ม Filter ตามข้อมูลทรัพย์ เช่น ราคา โซน ห้องนอน พื้นที่ใช้สอย และสถานะ",
+    demo: "กดเลือกช่วงราคา 8-15 ล้าน + โซนราชพฤกษ์ + 4 ห้องนอน",
+    result: "ช่วยให้เซลล์เสนอทรัพย์ที่ตรงความต้องการลูกค้าได้ไวขึ้น",
+  },
+  {
+    id: "mobile-first",
+    title: "Mobile-first PWA",
+    subtitle: "ใช้งานเหมือนแอปบนมือถือ ไม่ใช่แค่ไฟล์ชีท",
+    icon: Smartphone,
+    problem: "เปิด Google Sheets บนมือถือไม่สะดวกและไม่เหมาะกับงานขายจริงนอกสถานที่",
+    solution: "ทำเป็น PWA ที่เปิดจากมือถือได้เหมือนแอป ดูง่าย กดง่าย โหลดไว",
+    demo: "เปิดจากมือถือ → กดค้นหา → ดูรายละเอียดทรัพย์ → โทรหา Owner ได้เลย",
+    result: "ลด Friction ทำให้ระบบถูกใช้งานจริงโดยทีมขาย 100%",
+  },
+  {
+    id: "owner-info",
+    title: "Owner Information",
+    subtitle: "รวมข้อมูลเจ้าของบ้านไว้ในจุดที่พร้อมใช้",
+    icon: Users,
+    problem: "ข้อมูลกระจัดกระจาย เสียเวลาเปิดหลายไฟล์เพื่อหาเบอร์ติดต่อ",
+    solution: "แสดงเบอร์โทรและข้อมูลสำคัญในหน้าทรัพย์ ติดต่อได้ทันที",
+    demo: "เปิดทรัพย์ → ดู Owner → โทร / Copy ข้อมูลส่งต่อ",
+    result: "ลดเวลาประสานงาน ข้อมูลไม่ตกหล่น ปิดดีลไวขึ้น",
+  },
+  {
+    id: "source-listings",
+    title: "Source Listings",
+    subtitle: "เชื่อมข้อมูลประกาศและแหล่งที่มาของทรัพย์",
+    icon: Database,
+    problem: "ต้องค้นซ้ำหลายรอบเพื่อเช็คว่าทรัพย์นี้ดึงข้อมูลมาจากแหล่งไหน",
+    solution: "รวม Source Listings ไว้ในหน้ารายละเอียดทรัพย์ ตรวจสอบง่าย",
+    demo: "ดูทรัพย์ → เปิด Source Listings → เช็คข้อมูลอ้างอิง",
+    result: "เพิ่มความน่าเชื่อถือของข้อมูล ลดงาน Manual ล้วน ๆ",
+  },
+  {
+    id: "similar-properties",
+    title: "Similar Properties",
+    subtitle: "แนะนำทรัพย์ใกล้เคียงเพื่อเพิ่มตัวเลือก",
+    icon: Building2,
+    problem: "ถ้าลูกค้าไม่ชอบหลังแรก เซลล์ต้องเสียเวลากลับไปหาทรัพย์สำรองใหม่",
+    solution: "AI ช่วยแนะนำทรัพย์ใกล้เคียงตามราคา ทำเล และสเปค",
+    demo: "เปิดทรัพย์หลัก → เลื่อนดู Similar Properties → เสนอทางเลือกสำรอง",
+    result: "เพิ่มโอกาสปิดการขายแบบ Cross-sell เซลล์มีของในมือตลอดเวลา",
+  },
+];
+
+const roadmap = [
+  { phase: "Phase 1", title: "Stabilize Internal App", detail: "วางระบบค้นหาและจัดการทรัพย์ให้เสถียรสำหรับทีมขาย" },
+  { phase: "Phase 2", title: "AI Property Matching", detail: "ใช้ AI จับคู่ทรัพย์กับ Requirement ลูกค้าอัตโนมัติ" },
+  { phase: "Phase 3", title: "Sales Assistant", detail: "AI ช่วยเจนข้อความเสนอทรัพย์และสรุปจุดขายเตรียมคุยลูกค้า" },
+  { phase: "Phase 4", title: "CRM & Automation", detail: "เชื่อมระบบหลังบ้าน Tracking ทีมขาย และระบบ Follow-up" },
+];
+
+const stats = [
+  { label: "Sales Team", value: "20-30", sub: "users impacted" },
+  { label: "Manual Work", value: "-60%", sub: "time saved daily" },
+  { label: "Data Access", value: "2x", sub: "faster response" },
+  { label: "Outsource Risk", value: "0%", sub: "internal ownership" },
+];
+
+function PhoneMockup() {
+  return (
+    <div className="relative mx-auto w-full max-w-[380px]">
+      {/* Phone Frame - ปรับขอบเป็นสีโทนเขียวเข้มให้เข้ากับธีม */}
+      <div className="relative rounded-[2.5rem] border-[8px] border-[#0a1a15] bg-[#0a1a15] shadow-2xl shadow-yellow-500/10 ring-1 ring-white/5">
+        
+        {/* Screen Area */}
+        <div className="relative h-[820px] w-full overflow-hidden rounded-[2.2rem] bg-[#0b0b13]">
+          <iframe
+            src="https://kornkawes.github.io/HRE_Shortcut/"
+            className="h-full w-full border-none"
+            style={{ display: "block", width: "100%", height: "100%" }}
+            title="HRE Shortcut Real App"
+            sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
+          />
+        </div>
+      </div>
+      
+      {/* Hint ให้รู้ว่ากดเล่นได้จริง - เปลี่ยนเป็นสีเหลือง */}
+      <div className="mt-6 text-center">
+        <span className="inline-flex items-center gap-2 rounded-full bg-yellow-400/10 px-4 py-2 text-sm font-semibold text-yellow-400 border border-yellow-400/20 shadow-lg shadow-yellow-400/10 transition-all hover:bg-yellow-400/20">
+          <Sparkles className="h-4 w-4" /> ลองกดเล่นแอปจริงด้านบนได้เลย!
+        </span>
+      </div>
+    </div>
+  );
+}
+
+function SectionTitle({ eyebrow, title, children }) {
+  return (
+    <div className="mx-auto mb-12 max-w-3xl text-center">
+      <p className="mb-3 text-xs font-bold uppercase tracking-[0.2em] text-yellow-400">{eyebrow}</p>
+      <h2 className="text-3xl font-black tracking-tight text-white md:text-5xl">{title}</h2>
+      {children && <p className="mt-5 text-base leading-relaxed text-neutral-300">{children}</p>}
+    </div>
+  );
+}
+
+export default function App() {
+  const [activeSection, setActiveSection] = useState("overview");
+  const [activeFeature, setActiveFeature] = useState(features[0].id);
+  const [showScript, setShowScript] = useState(false);
+
+  const activeFeatureData = useMemo(
+    () => features.find((item) => item.id === activeFeature) || features[0],
+    [activeFeature]
+  );
+
+  return (
+    <div className="min-h-screen bg-[#0F2922] text-neutral-50 selection:bg-yellow-400/30" style={{ fontFamily: "'Kanit', 'Noto Sans Thai', sans-serif" }}>
+      {/* โหลด Google Fonts */}
+      <style>
+        {`
+          @import url('https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600;700&family=Noto+Sans+Thai:wght@300;400;600;700&display=swap');
+        `}
+      </style>
+
+      {/* Modern Mesh Gradient Background - ปรับแสงเป็นสีเหลือง */}
+      <div className="fixed inset-0 -z-10 bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(250,204,21,0.12),rgba(15,41,34,0))]"></div>
+
+      <header className="sticky top-0 z-50 border-b border-white/5 bg-[#0F2922]/80 backdrop-blur-xl">
+        <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
+          <div className="flex items-center gap-4">
+            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-yellow-300 to-yellow-500 text-[#0F2922] shadow-lg shadow-yellow-500/20">
+              <Home className="h-5 w-5" />
+            </div>
+            <div>
+              <p className="text-sm font-bold tracking-wide">HOME Real Estate</p>
+              <p className="text-xs text-neutral-400">Internal Tool Pitch</p>
+            </div>
+          </div>
+
+          <nav className="hidden items-center gap-2 lg:flex overflow-x-auto">
+            {sections.map((section) => {
+              const Icon = section.icon;
+              const active = activeSection === section.id;
+              return (
+                <button
+                  key={section.id}
+                  onClick={() => setActiveSection(section.id)}
+                  className={`flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition-all whitespace-nowrap ${
+                    active 
+                      ? "bg-white/10 text-yellow-400" 
+                      : "text-neutral-300 hover:bg-white/5 hover:text-white"
+                  }`}
+                >
+                  <Icon className="h-4 w-4" />
+                  {section.label}
+                </button>
+              );
+            })}
+          </nav>
+          
+          {/* Mobile Menu indicator */}
+          <div className="lg:hidden flex items-center text-xs font-medium text-yellow-400 border border-yellow-400/30 px-3 py-1.5 rounded-full bg-yellow-400/10">
+            {sections.find(s => s.id === activeSection)?.label}
+          </div>
+        </div>
+      </header>
+
+      <main className="pb-24">
+        {}
+        {activeSection === "overview" && (
+          <section className="mx-auto grid min-h-[calc(100vh-88px)] max-w-7xl items-center gap-12 px-6 py-12 lg:grid-cols-[1.1fr_0.9fr]">
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
+              <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-yellow-400/20 bg-yellow-400/10 px-4 py-2 text-xs font-semibold text-yellow-400 backdrop-blur-md">
+                <Sparkles className="h-3.5 w-3.5" /> AI & Automation Initiative
+              </div>
+              <h1 className="text-4xl font-black leading-[1.2] tracking-tight sm:text-5xl md:text-6xl">
+                เปลี่ยนข้อมูลหลังบ้านให้กลายเป็น
+                <span className="mt-2 block bg-gradient-to-r from-yellow-300 to-amber-300 bg-clip-text text-transparent">
+                  Mobile Sales Tool
+                </span>
+              </h1>
+              <p className="mt-6 max-w-xl text-lg leading-relaxed text-neutral-300">
+                แอปพลิเคชันที่ออกแบบมาเพื่อช่วยทีมเซลล์ค้นหาทรัพย์ ดูรายละเอียดเจ้าของบ้าน และเสนอตัวเลือกให้ลูกค้าได้เรียลไทม์ — ตัดปัญหาการควานหาข้อมูลจากหลายชีท
+              </p>
+
+              <div className="mt-10 flex flex-wrap gap-4">
+                <button
+                  onClick={() => setActiveSection("demo")}
+                  className="group inline-flex items-center gap-2 rounded-xl bg-yellow-400 px-7 py-3.5 font-bold text-[#0F2922] transition-all hover:bg-yellow-300 hover:shadow-lg hover:shadow-yellow-400/25 active:scale-[0.98]"
+                >
+                  Interactive Demo <PlayCircle className="h-5 w-5 transition-transform group-hover:scale-110" />
+                </button>
+                <button
+                  onClick={() => setActiveSection("impact")}
+                  className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-7 py-3.5 font-semibold text-white backdrop-blur-md transition-all hover:bg-white/10 active:scale-[0.98]"
+                >
+                  Business Impact <ArrowRight className="h-5 w-5" />
+                </button>
+              </div>
+
+              <div className="mt-16 grid grid-cols-2 gap-4 sm:grid-cols-4">
+                {stats.map((stat) => (
+                  <div key={stat.label} className="rounded-2xl border border-white/5 bg-[#14332A] p-5 backdrop-blur-sm">
+                    <p className="text-3xl font-black text-yellow-400">{stat.value}</p>
+                    <p className="mt-2 text-sm font-semibold text-white">{stat.label}</p>
+                    <p className="mt-1 text-xs text-neutral-400">{stat.sub}</p>
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.6, delay: 0.2 }}>
+              <PhoneMockup />
+            </motion.div>
+          </section>
+        )}
+
+        {}
+        {activeSection === "problem" && (
+          <section className="mx-auto max-w-7xl px-6 py-20">
+            <SectionTitle eyebrow="Current Challenge" title="ปัญหาที่ระบบนี้เข้ามาแก้">
+              จุดขายของโปรเจกต์นี้ไม่ใช่แค่หน้าตาแอป แต่คือการลดเวลางานซ้ำ ๆ ที่ทีมขายเจอทุกวัน
+            </SectionTitle>
+            <div className="grid gap-6 md:grid-cols-3">
+              {[
+                ["ข้อมูลกระจัดกระจาย", "ข้อมูลทรัพย์ เจ้าของบ้าน และแหล่งประกาศอยู่หลายที่ ทำให้ทีมเสียเวลาค้นหา"],
+                ["มือถือใช้งานยาก", "เซลล์ทำงานนอกสถานที่ แต่ Google Sheets ไม่ได้ถูกออกแบบมาให้ใช้งานแบบ Sales App"],
+                ["Outsource ไม่เข้าใจ Workflow", "จ้างคนนอกทำระบบได้ แต่ยากที่จะเข้าใจ pain point หน้างานเท่าคนในทีม"],
+                ["Feedback Cycle ช้า", "เมื่อทีมอยากแก้หรือเพิ่มฟีเจอร์ ต้องรอและอธิบายซ้ำหลายรอบ"],
+                ["ข้อมูลไม่พร้อมขาย", "เซลล์ควรใช้เวลาไปกับการคุยลูกค้า ไม่ใช่การหาและจัดข้อมูลใหม่ทุกครั้ง"],
+                ["AI ยังไม่มีเจ้าภาพ", "องค์กรต้องมีคนที่นำ AI มาใช้จริง ไม่ใช่แค่พูดว่า AI สำคัญ"],
+              ].map(([title, detail]) => (
+                <div key={title} className="rounded-3xl border border-white/5 bg-[#14332A] p-8 backdrop-blur-sm transition-all hover:border-yellow-400/30 hover:bg-[#1A3D33] group">
+                  <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-2xl bg-yellow-400/10 text-yellow-400 group-hover:scale-110 transition-transform">
+                    <Clock3 className="h-6 w-6" />
+                  </div>
+                  <h3 className="text-xl font-bold text-white">{title}</h3>
+                  <p className="mt-3 leading-relaxed text-neutral-300">{detail}</p>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {}
+        {activeSection === "demo" && (
+          <section className="mx-auto grid max-w-7xl gap-12 px-6 py-20 lg:grid-cols-[1fr_1fr]">
+            <div>
+              <SectionTitle eyebrow="Interactive Experience" title="ลองเล่นฟีเจอร์หลัก" />
+              <div className="space-y-4">
+                {features.map((feature) => {
+                  const Icon = feature.icon;
+                  const active = activeFeature === feature.id;
+                  return (
+                    <button
+                      key={feature.id}
+                      onClick={() => setActiveFeature(feature.id)}
+                      className={`w-full rounded-2xl border p-5 text-left transition-all duration-300 ${
+                        active
+                          ? "border-yellow-400/50 bg-yellow-400/10 shadow-lg shadow-yellow-400/5"
+                          : "border-white/5 bg-[#14332A] hover:border-white/10 hover:bg-[#1A3D33]"
+                      }`}
+                    >
+                      <div className="flex items-start gap-5">
+                        <div className={`rounded-xl p-3 ${active ? 'bg-yellow-400 text-[#0F2922]' : 'bg-white/10 text-yellow-400'}`}>
+                          <Icon className="h-5 w-5" />
+                        </div>
+                        <div>
+                          <h3 className="font-bold text-white">{feature.title}</h3>
+                          <p className="mt-1 text-sm text-neutral-400">{feature.subtitle}</p>
+                        </div>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div className="flex flex-col items-center gap-8 lg:items-start lg:flex-row">
+              <PhoneMockup />
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={activeFeatureData.id}
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  className="w-full rounded-3xl border border-white/10 bg-[#14332A] p-8 backdrop-blur-xl"
+                >
+                  <p className="mb-3 text-xs font-bold tracking-widest text-yellow-400">THE DETAILS</p>
+                  <h3 className="text-3xl font-black text-white">{activeFeatureData.title}</h3>
+                  <div className="mt-8 space-y-6">
+                    <div>
+                      <p className="flex items-center gap-2 font-bold text-rose-400">
+                        <span className="h-2 w-2 rounded-full bg-rose-400"></span> Pain Point
+                      </p>
+                      <p className="mt-2 text-sm leading-relaxed text-neutral-300">{activeFeatureData.problem}</p>
+                    </div>
+                    <div>
+                      <p className="flex items-center gap-2 font-bold text-yellow-400">
+                        <span className="h-2 w-2 rounded-full bg-yellow-400"></span> Solution
+                      </p>
+                      <p className="mt-2 text-sm leading-relaxed text-neutral-300">{activeFeatureData.solution}</p>
+                    </div>
+                    <div className="rounded-xl border border-yellow-400/20 bg-yellow-400/10 p-4">
+                      <p className="font-bold text-yellow-300">Business Result</p>
+                      <p className="mt-1 text-sm leading-relaxed text-yellow-100/80">{activeFeatureData.result}</p>
+                    </div>
+                  </div>
+                </motion.div>
+              </AnimatePresence>
+            </div>
+          </section>
+        )}
+
+        {}
+        {activeSection === "features" && (
+          <section className="mx-auto max-w-7xl px-6 py-20">
+            <SectionTitle eyebrow="Feature Portfolio" title="หัวข้อเว็บที่ควรนำเสนอ">
+              แต่ละหัวข้อควรเป็น section ในเว็บ ไม่ใช่ bullet point แบบ PowerPoint
+            </SectionTitle>
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+              {features.map((feature) => {
+                const Icon = feature.icon;
+                return (
+                  <div key={feature.id} className="rounded-3xl border border-white/5 bg-[#14332A] p-8 backdrop-blur-sm transition-all hover:border-yellow-400/30 group">
+                    <div className="mb-6 flex h-14 w-14 items-center justify-center rounded-2xl bg-yellow-400/10 text-yellow-400 group-hover:scale-110 transition-transform group-hover:bg-yellow-400 group-hover:text-[#0F2922]">
+                      <Icon className="h-7 w-7" />
+                    </div>
+                    <h3 className="text-xl font-black text-white">{feature.title}</h3>
+                    <p className="mt-2 text-sm text-yellow-400/80">{feature.subtitle}</p>
+                    <p className="mt-4 leading-relaxed text-neutral-300">{feature.result}</p>
+                    <button
+                      onClick={() => {
+                        setActiveFeature(feature.id);
+                        setActiveSection("demo");
+                      }}
+                      className="mt-6 inline-flex items-center gap-2 text-sm font-bold text-white hover:text-yellow-400 transition-colors"
+                    >
+                      View Demo <ArrowRight className="h-4 w-4" />
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+          </section>
+        )}
+
+        {}
+        {activeSection === "impact" && (
+          <section className="mx-auto max-w-7xl px-6 py-20">
+            <SectionTitle eyebrow="Business Case" title="มูลค่าที่บริษัทได้รับ">
+              ประเด็นนี้คือสิ่งที่ CEO ควรเห็นชัดที่สุด: ระบบนี้ช่วยลดต้นทุน เพิ่มความเร็ว และทำให้บริษัทไม่ต้องเริ่มใหม่กับ Outsource ซ้ำ ๆ
+            </SectionTitle>
+            <div className="grid gap-8 lg:grid-cols-2">
+              <div className="rounded-3xl border border-white/5 bg-[#14332A] p-10 backdrop-blur-sm">
+                <BarChart3 className="mb-6 h-12 w-12 text-yellow-400" />
+                <h3 className="text-2xl font-black text-white">Productivity ROI</h3>
+                <p className="mt-4 text-lg leading-relaxed text-neutral-300">
+                  ถ้าทีมขาย 25 คนประหยัดเวลาคนละ 20 นาทีต่อวัน เท่ากับบริษัทได้เวลาคืนมากกว่า 180 ชั่วโมงต่อเดือน ซึ่งเวลานี้สามารถถูกเปลี่ยนเป็นการ follow-up ลูกค้า การหาทรัพย์เพิ่ม และการปิดการขายได้
+                </p>
+              </div>
+              <div className="rounded-3xl border border-white/5 bg-[#14332A] p-10 backdrop-blur-sm">
+                <Database className="mb-6 h-12 w-12 text-amber-300" />
+                <h3 className="text-2xl font-black text-white">Outsource Alternative</h3>
+                <p className="mt-4 text-lg leading-relaxed text-neutral-300">
+                  บริษัทเคยลอง Outsource หลายเจ้าแต่ยังไม่ตอบโจทย์ เพราะระบบภายในต้องอาศัยความเข้าใจธุรกิจจริง การมีคนดูแลในองค์กรช่วยให้พัฒนาเร็ว แก้ไขเร็ว และต่อยอดได้ต่อเนื่อง
+                </p>
+              </div>
+            </div>
+          </section>
+        )}
+
+        {}
+        {activeSection === "roadmap" && (
+          <section className="mx-auto max-w-7xl px-6 py-20">
+            <SectionTitle eyebrow="Next 12 Months" title="AI & Automation Roadmap">
+              จากเว็บแอปตัวนี้สามารถต่อยอดไปเป็นระบบ AI หลังบ้านของบริษัทได้
+            </SectionTitle>
+            <div className="grid gap-6 md:grid-cols-4">
+              {roadmap.map((item, index) => (
+                <div key={item.phase} className="relative rounded-3xl border border-white/5 bg-[#14332A] p-8 backdrop-blur-sm hover:border-yellow-400/20 transition-colors">
+                  <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-full bg-yellow-400/20 text-base font-black text-yellow-400 border border-yellow-400/20">
+                    {index + 1}
+                  </div>
+                  <p className="text-xs font-bold tracking-widest text-neutral-400">{item.phase}</p>
+                  <h3 className="mt-2 text-xl font-black text-white">{item.title}</h3>
+                  <p className="mt-4 leading-relaxed text-neutral-300">{item.detail}</p>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {}
+        {activeSection === "proposal" && (
+          <section className="mx-auto max-w-4xl px-6 py-20">
+            <SectionTitle eyebrow="Role Proposal" title="ทำไมถึงต้องมีตำแหน่งนี้?">
+              คนพัฒนาระบบที่เข้าใจหน้างานจริง คือกุญแจสำคัญในการทำ Digital Transformation
+            </SectionTitle>
+            <div className="overflow-hidden rounded-3xl border border-yellow-400/20 bg-gradient-to-br from-yellow-400/10 to-transparent">
+              <div className="p-8 md:p-12">
+                <h3 className="text-3xl font-black text-white">AI & Automation Specialist</h3>
+                <p className="mt-4 text-lg leading-relaxed text-neutral-200">
+                  ไม่ใช่แค่ Developer แต่เป็นคนที่ดึง AI และระบบ Automation มาแก้ปัญหา Workflow ของทีมเซลล์ให้ทำงานได้เร็วขึ้น ปิดการขายได้ไวขึ้น
+                </p>
+                <div className="mt-8 grid gap-4 sm:grid-cols-2">
+                  {[
+                    "ดูแลและพัฒนา Internal App",
+                    "วางโครงสร้าง Data ฝั่งเซลล์",
+                    "นำ AI มาใช้ลดงาน Manual",
+                    "อัปเดตฟีเจอร์ตาม Feedback หน้างาน",
+                  ].map((item) => (
+                    <div key={item} className="flex items-center gap-3 rounded-xl border border-white/5 bg-[#14332A] p-4 backdrop-blur-sm">
+                      <CheckCircle2 className="h-5 w-5 text-yellow-400 shrink-0" />
+                      <span className="text-sm font-medium">{item}</span>
+                    </div>
+                  ))}
+                </div>
+                
+                <div className="mt-10 border-t border-white/10 pt-8">
+                  <button
+                    onClick={() => setShowScript((v) => !v)}
+                    className="rounded-xl bg-white/10 px-6 py-3 text-sm font-bold text-white transition-all hover:bg-white/20 active:scale-95"
+                  >
+                    {showScript ? "Hide" : "Show"} Pitching Script
+                  </button>
+                  <AnimatePresence>
+                    {showScript && (
+                      <motion.div
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: "auto" }}
+                        exit={{ opacity: 0, height: 0 }}
+                      >
+                        <div className="mt-6 rounded-2xl bg-[#091a15] p-6 text-sm leading-relaxed text-neutral-300 border border-white/5 shadow-inner">
+                          “สิ่งที่ผมอยากนำเสนอไม่ใช่แค่แอปตัวนึงครับ แต่มันคือโครงสร้างการทำงานใหม่ของทีมขาย ระบบนี้เริ่มจากปัญหาจริงที่เซลล์เจอ และพร้อมต่อยอดไปใช้ AI ช่วยวิเคราะห์ข้อมูลในอนาคต ข้อได้เปรียบคือผมเข้าใจเนื้องานฝั่งอสังหาฯ ทำให้ระบบถูกสร้างมาเพื่อใช้จริง ไม่ใช่แค่ทำตาม Spec ครับ”
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              </div>
+            </div>
+          </section>
+        )}
+      </main>
+      
+      <footer className="border-t border-white/5 px-6 py-8 text-center text-xs text-neutral-400 bg-[#0F2922]/50 backdrop-blur-sm relative z-10">
+        <div className="flex flex-col items-center justify-center gap-2">
+          <Home className="h-4 w-4 opacity-50" />
+          <p>HOME Real Estate • Interactive Product Pitch • AI & Automation Initiative</p>
+        </div>
+      </footer>
+    </div>
+  );
+}
