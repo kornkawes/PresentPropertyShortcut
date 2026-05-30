@@ -158,35 +158,30 @@ h1.hero-title em{font-style:italic;color:var(--gold)}
 .stat-sub{font-size:11px;color:var(--muted);margin-top:2px;font-weight:300}
 
 /* ── PHONE MOCKUP ── */
-.phone-wrap{position:relative;max-width:400px;margin:0 auto}
-#hero .phone-wrap{padding-top:80px}
+.phone-wrap{position:relative;max-width:320px;margin:0 auto}
+#hero .phone-wrap{padding-top:68px}
 .phone-glow{
-  position:absolute;inset:-40px;
-  background:radial-gradient(ellipse at center, rgba(201,168,76,0.12) 0%, transparent 70%);
+  position:absolute;inset:-60px;
+  background:radial-gradient(ellipse at center, rgba(201,168,76,0.1) 0%, transparent 65%);
   border-radius:50%;z-index:0;
   animation:glow-pulse 4s ease-in-out infinite;
+  pointer-events:none;
 }
-@keyframes glow-pulse{0%,100%{opacity:.6;transform:scale(1)}50%{opacity:1;transform:scale(1.05)}}
+@keyframes glow-pulse{0%,100%{opacity:.5;transform:scale(1)}50%{opacity:.9;transform:scale(1.04)}}
+/* Clean minimal phone — thin border only */
 .phone-frame{
   position:relative;z-index:1;
-  border-radius:52px;
-  border:10px solid #1a2a20;
-  background:#1a2a20;
-  box-shadow:
-    0 40px 80px rgba(0,0,0,0.7),
-    0 0 0 1px rgba(255,255,255,0.04),
-    inset 0 1px 0 rgba(255,255,255,0.06);
+  border-radius:38px;
+  border:3px solid rgba(255,255,255,0.1);
+  overflow:hidden;
+  box-shadow:0 28px 64px rgba(0,0,0,0.65),0 0 0 1px rgba(255,255,255,0.04);
 }
-.phone-frame::before{
-  content:'';display:block;
-  width:90px;height:6px;border-radius:999px;
-  background:rgba(255,255,255,0.15);
-  margin:10px auto 8px;
-}
+.phone-frame::before{display:none}
+/* Hero phone: 375→300px (scale 0.8) */
 .phone-screen{
-  border-radius:44px;
-  width:375px;
-  height:760px;
+  border-radius:0;
+  width:300px;
+  height:608px;
   overflow:hidden;
   background:#0b0b13;
 }
@@ -195,29 +190,22 @@ h1.hero-title em{font-style:italic;color:var(--gold)}
   height:760px;
   border:none;
   display:block;
+  transform:scale(0.8);
   transform-origin:top left;
 }
-/* Hero phone: 375px wide fits the 375px iframe perfectly */
-#hero .phone-screen{
-  width:375px;
-  height:760px;
-}
-#hero .phone-screen iframe{
-  transform:scale(1);
-}
-/* Demo phone: scale down to fit 300px container */
+/* Demo phone: 375→240px (scale 0.64) */
 .demo-phone-wrap .phone-screen{
-  width:300px !important;
-  height:608px !important;
+  width:240px !important;
+  height:486px !important;
 }
 .demo-phone-wrap .phone-screen iframe{
-  transform:scale(0.8);
+  transform:scale(0.64) !important;
   transform-origin:top left;
   width:375px !important;
   height:760px !important;
 }
 .phone-badge{
-  margin-top:20px;text-align:center;
+  margin-top:16px;text-align:center;
 }
 .phone-badge span{
   display:inline-flex;align-items:center;gap:7px;
@@ -851,7 +839,7 @@ footer p{font-size:12px;color:var(--muted)}
     <div class="demo-main reveal">
       <div class="demo-phone-wrap">
         <div class="phone-frame">
-          <div class="phone-screen" style="height:620px;width:300px">
+          <div class="phone-screen">
             <iframe src="https://kornkawes.github.io/HRE_Shortcut/" title="Demo App" sandbox="allow-scripts allow-same-origin allow-forms allow-popups"></iframe>
           </div>
         </div>
