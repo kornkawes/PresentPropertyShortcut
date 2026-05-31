@@ -1403,7 +1403,9 @@ footer p{font-size:12px;color:var(--muted)}
         <h2 class="sec-title" style="font-size:clamp(22px,2.6vw,36px);margin-bottom:8px">One Platform.<br><em>Everything In One Place.</em></h2>
         <p style="font-size:14px;color:var(--muted);margin-bottom:20px;font-weight:300;line-height:1.7">จากเดิมที่เซลล์ต้องใช้เวลาค้นหาข้อมูลจาก Google Sheet จำนวนมาก Property Shortcut รวบรวมข้อมูลสำคัญทั้งหมดไว้ในที่เดียว ช่วยให้ทีมขายค้นหา วิเคราะห์ และนำเสนอข้อมูลให้ลูกค้าได้รวดเร็วยิ่งขึ้น</p>
         <div class="iframe-wrap" style="width:315px;height:640px;border-radius:18px;overflow:hidden">
-          <iframe src="https://kornkawes.github.io/HRE_Shortcut/" title="Property Shortcut" sandbox="allow-scripts allow-same-origin allow-forms allow-popups" style="width:410px;height:793px;transform:scale(0.808);transform-origin:top left;border:none;display:block"></iframe>
+          <video id="demo-video" autoplay loop muted playsinline style="width:315px;height:640px;object-fit:cover;border:none;display:block;background:#0b0b13">
+            <source src="demo-search.mp4" type="video/mp4">
+          </video>
         </div>
       </div>
       <div class="app-demo-right">
@@ -1807,7 +1809,7 @@ function switchBA(which, btn) {
 const features = [
   {
     icon:'🔍', name:'Smart Search', desc:'ค้นหาจากจุดเดียว',
-    tag:'Feature 1',
+    tag:'Feature 1', video:'demo-search.mp4',
     title:'Smart Search',
     sub:'ค้นหาทรัพย์ได้จากทุกเงื่อนไขในจุดเดียว',
     problem:'เซลล์ต้องไล่หาข้อมูลจาก Google Sheet หลายชีท เลื่อนซ้ายขวา ใช้เวลานานกว่าจะเจอทรัพย์ที่ลูกค้าต้องการ',
@@ -1816,7 +1818,7 @@ const features = [
   },
   {
     icon:'🏠', name:'Property Overview', desc:'ข้อมูลบ้านในหน้าเดียว',
-    tag:'Feature 2',
+    tag:'Feature 2', video:'demo-overview.mp4',
     title:'Property Overview',
     sub:'ดูข้อมูลสำคัญของบ้านทั้งหมดในหน้าเดียว',
     problem:'ข้อมูลบ้านกระจายอยู่หลายคอลัมน์หลายชีท เซลล์ต้องเปิดสลับไปมากว่าจะเห็นภาพรวมของทรัพย์',
@@ -1825,7 +1827,7 @@ const features = [
   },
   {
     icon:'👤', name:'Owner Information', desc:'ข้อมูลเจ้าของพร้อมใช้',
-    tag:'Feature 3',
+    tag:'Feature 3', video:'demo-owner.mp4',
     title:'Owner Information',
     sub:'เข้าถึงข้อมูลเจ้าของบ้านได้รวดเร็ว',
     problem:'ข้อมูลเจ้าของอยู่คนละชีทกับทรัพย์ ต้องเปิดหลายหน้าต่างหาเบอร์โทร ทำให้พลาดการ Follow-up',
@@ -1834,7 +1836,7 @@ const features = [
   },
   {
     icon:'🔗', name:'One-Tap Sharing', desc:'เปิดหน้าประกาศทันที',
-    tag:'Feature 4',
+    tag:'Feature 4', video:'demo-sharing.mp4',
     title:'One-Tap Property Sharing',
     sub:'เข้าถึงหน้าประกาศบนเว็บไซต์บริษัทได้ทันทีจากในแอป',
     problem:'เซลล์ต้องสลับไปมาระหว่างแอปกับเว็บไซต์ เสียเวลาค้นหน้าประกาศของทรัพย์ก่อนส่งให้ลูกค้า',
@@ -1843,7 +1845,7 @@ const features = [
   },
   {
     icon:'🏘', name:'Similar Properties', desc:'ทรัพย์ทางเลือก',
-    tag:'Feature 5',
+    tag:'Feature 5', video:'demo-similar.mp4',
     title:'Similar Properties',
     sub:'แนะนำบ้านที่มีลักษณะใกล้เคียงกันโดยอัตโนมัติ',
     problem:'ถ้าลูกค้าไม่สนใจบ้านหลังแรก เซลล์ต้องกลับไปค้นใหม่ตั้งแต่ต้น เสีย Momentum ในการปิดการขาย',
@@ -1852,7 +1854,7 @@ const features = [
   },
   {
     icon:'📱', name:'Mobile First Design', desc:'ใช้งานบนมือถือ',
-    tag:'Feature 6',
+    tag:'Feature 6', video:'demo-mobile.mp4',
     title:'Mobile First Design',
     sub:'ออกแบบมาเพื่อการใช้งานบนมือถือโดยเฉพาะ',
     problem:'งานเซลล์ไม่ได้อยู่หน้าคอมทั้งวัน ต้องออกหน้างาน เจอลูกค้า เดินทาง และตอบคำถามแบบทันที',
@@ -1883,6 +1885,16 @@ function setFeatValue(i, btn) {
 }
 function renderFeatValue(i) {
   const f = features[i];
+  // switch demo video to match selected feature
+  const vid = document.getElementById('demo-video');
+  if (vid && f.video) {
+    const src = vid.querySelector('source');
+    if (src && !src.getAttribute('src').endsWith(f.video)) {
+      src.setAttribute('src', f.video);
+      vid.load();
+      vid.play().catch(() => {});
+    }
+  }
   const el = document.getElementById('feat-value-detail');
   if (!el) return;
   el.innerHTML = `
