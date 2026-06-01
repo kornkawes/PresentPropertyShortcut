@@ -2,10 +2,13 @@
 <html lang="th">
 <head>
 <meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Property Shortcut — HOME Real Estate AI Platform</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=Kanit:ital,wght@0,300;0,400;0,600;0,700;0,900;1,300&display=swap" rel="stylesheet"/>
+<!-- Added Tone.js for Sound Effects -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -360,9 +363,6 @@ h1.hero-title em{font-style:italic;color:var(--gold)}
 }
 .kpi-label{font-size:13px;font-weight:600;color:var(--text)}
 .kpi-sub{font-size:12px;color:var(--muted);margin-top:4px;font-weight:300}
-
-/* ── ROI CALCULATOR ── */
-
 
 /* ── WHY INTERNAL ── */
 #why{background:var(--bg2)}
@@ -1813,6 +1813,83 @@ footer p{font-size:12px;color:var(--muted)}
 </footer>
 
 <script>
+// --- AUDIO SYSTEM (Tone.js) ---
+let audioInitialized = false;
+let clickSynth, slideSynth, bgmSynth;
+
+async function initAudio() {
+    if (audioInitialized) return;
+    await Tone.start();
+    
+    // UI Click Sound (Subtle Pop) - เพิ่มความดังขึ้น
+    clickSynth = new Tone.Synth({
+        oscillator: { type: 'sine' },
+        envelope: { attack: 0.005, decay: 0.1, sustain: 0, release: 0.1 }
+    }).toDestination();
+    clickSynth.volume.value = -4; // ปรับให้ดังขึ้น (จากเดิม -12)
+
+    // Slide Change Sound (Soft Swoosh/Chime) - เพิ่มความดังขึ้น
+    slideSynth = new Tone.FMSynth({
+        harmonicity: 0.5,
+        modulationIndex: 1.2,
+        oscillator: { type: "sine" },
+        envelope: { attack: 0.1, decay: 0.3, sustain: 0, release: 0.3 },
+        modulation: { type: "triangle" }
+    }).toDestination();
+    slideSynth.volume.value = -10; // ปรับให้ดังขึ้น (จากเดิม -20)
+
+    // BGM Sound (Ambient Corporate Pad) - เสียงดนตรีคลอพื้นหลัง
+    // สร้างเสียงสะท้อน (Reverb) และตัวกรองเสียง (Filter) ให้เสียงดูนุ่มและกว้าง
+    const freeverb = new Tone.Freeverb({ roomSize: 0.85, dampening: 2000 }).toDestination();
+    const filter = new Tone.Filter(700, "lowpass").connect(freeverb);
+    
+    bgmSynth = new Tone.PolySynth(Tone.AMSynth, {
+        oscillator: { type: "sine" },
+        envelope: { attack: 2.5, decay: 0.5, sustain: 1, release: 4 }
+    }).connect(filter);
+    
+    bgmSynth.volume.value = -16; // ระดับเสียงดนตรีพื้นหลัง (ปรับตัวเลขให้เข้าใกล้ 0 จะยิ่งดัง)
+
+    // คอร์ดดนตรีแนว Tech/Corporate ฟังสบายๆ
+    const chords = [
+        ["C4", "E4", "G4", "B4"],  // CMaj7
+        ["A3", "C4", "E4", "G4"],  // Am7
+        ["F3", "A3", "C4", "E4"],  // FMaj7
+        ["G3", "B3", "D4", "F4"]   // G7
+    ];
+    let chordIndex = 0;
+
+    // วนลูปเล่นเสียงประสานช้าๆ (ดึงเสียงเข้า-ออกอย่างนุ่มนวล)
+    Tone.Transport.scheduleRepeat((time) => {
+        bgmSynth.triggerAttackRelease(chords[chordIndex], "1m", time);
+        chordIndex = (chordIndex + 1) % chords.length;
+    }, "2m");
+
+    Tone.Transport.bpm.value = 45; // ความเร็วเพลง (จังหวะช้าๆ ผ่อนคลาย)
+    Tone.Transport.start();
+
+    audioInitialized = true;
+}
+
+// Global click listener to unlock audio and play click sounds
+document.addEventListener('click', async (e) => {
+    await initAudio(); // Unlocks audio context on first user click
+    
+    // Selectors that should trigger a sound
+    const interactiveSelectors = [
+        'button', '.btn-gold', '.btn-ghost', '.dot-nav-item', 
+        '.fv-tab', '.scenario-btn', '.demo-step', 
+        '.script-toggle', '.ba-tab', '#fs-btn'
+    ];
+    
+    const isInteractive = interactiveSelectors.some(selector => e.target.closest(selector));
+    
+    if (isInteractive && clickSynth && Tone.context.state === 'running') {
+        clickSynth.triggerAttackRelease("C6", "32n"); // High pitched 'tick'
+    }
+});
+
+
 // ── FULLPAGE SCROLL SETUP ──
 const sections = Array.from(document.querySelectorAll('#fullpage section'));
 const fp = document.getElementById('fullpage');
@@ -1841,6 +1918,12 @@ const sectionObserver = new IntersectionObserver(entries => {
       document.querySelectorAll('.dot-nav-item').forEach((d,i) => d.classList.toggle('active', i === idx));
       // Trigger count-up for this section
       animateNumbers(entry.target);
+
+      // --- Trigger Slide Sound ---
+      if (audioInitialized && slideSynth && Tone.context.state === 'running') {
+          // Plays a soft E3 note on slide entrance
+          slideSynth.triggerAttackRelease("E3", "8n");
+      }
     }
   });
 }, { root: fp, threshold: 0.4 });
