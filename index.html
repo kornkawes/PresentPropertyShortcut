@@ -105,6 +105,19 @@ section.in-view .reveal{
 }
 .dot-nav-item:hover{background:rgba(255,255,255,0.4)}
 
+/* ── FULLSCREEN BUTTON ── */
+#fs-btn{
+  position:fixed;top:24px;right:24px;z-index:200;
+  width:42px;height:42px;border-radius:12px;
+  display:flex;align-items:center;justify-content:center;
+  background:rgba(255,255,255,0.06);
+  border:1px solid var(--gold-border);
+  color:var(--gold);cursor:pointer;
+  backdrop-filter:blur(8px);transition:all .2s;
+}
+#fs-btn:hover{background:var(--gold-dim);transform:scale(1.06)}
+#fs-btn:active{transform:scale(0.96)}
+
 /* ── SECTIONS ── */
 
 /* ── HERO ── */
@@ -1241,6 +1254,11 @@ footer p{font-size:12px;color:var(--muted)}
 
 <div id="dot-nav"></div>
 
+<button id="fs-btn" onclick="toggleFullscreen()" title="เต็มหน้าจอ (สำหรับพรีเซนต์)" aria-label="Toggle fullscreen">
+  <svg id="fs-icon-expand" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+  <svg id="fs-icon-compress" style="display:none" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3"/></svg>
+</button>
+
 <div id="fullpage">
 
 <!-- ═══ 1. HERO ═══ -->
@@ -1790,6 +1808,20 @@ function goTo(id) {
   const el = document.getElementById(id);
   if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
+
+// ── FULLSCREEN ──
+function toggleFullscreen() {
+  if (!document.fullscreenElement) {
+    (document.documentElement.requestFullscreen || document.documentElement.webkitRequestFullscreen)?.call(document.documentElement);
+  } else {
+    (document.exitFullscreen || document.webkitExitFullscreen)?.call(document);
+  }
+}
+document.addEventListener('fullscreenchange', () => {
+  const fs = !!document.fullscreenElement;
+  document.getElementById('fs-icon-expand').style.display = fs ? 'none' : 'block';
+  document.getElementById('fs-icon-compress').style.display = fs ? 'block' : 'none';
+});
 
 // ── BEFORE/AFTER ──
 function switchBA(which, btn) {
