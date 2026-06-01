@@ -71,12 +71,14 @@ section{
   overflow:hidden;
   /* entrance animation */
   opacity:0;
-  transform:translateY(40px);
+  transform:translate3d(0,40px,0);
   transition:opacity .7s cubic-bezier(.25,.46,.45,.94), transform .7s cubic-bezier(.25,.46,.45,.94);
+  will-change:transform, opacity;
+  backface-visibility:hidden;
 }
 section.in-view{
   opacity:1;
-  transform:translateY(0);
+  transform:translate3d(0,0,0);
 }
 /* Override reveal since sections handle their own fade */
 section.in-view .reveal{
@@ -2088,12 +2090,19 @@ document.addEventListener('mouseleave', () => { glow.style.opacity = '0'; });
 const heroBg = document.getElementById('hero-bg');
 const fpEl = document.getElementById('fullpage');
 if (heroBg && fpEl) {
+  let ticking = false;
   fpEl.addEventListener('scroll', () => {
-    const y = fpEl.scrollTop;
-    if (y < window.innerHeight) {
-      heroBg.style.transform = `translateY(${y * 0.4}px) scale(1.05)`;
+    if (!ticking) {
+      ticking = true;
+      requestAnimationFrame(() => {
+        const y = fpEl.scrollTop;
+        if (y < window.innerHeight) {
+          heroBg.style.transform = `translate3d(0, ${y * 0.4}px, 0) scale(1.05)`;
+        }
+        ticking = false;
+      });
     }
-  });
+  }, { passive: true });
 }
 
 </script>
