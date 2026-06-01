@@ -122,8 +122,7 @@ section.in-view .reveal{
 
 /* ── HERO ── */
 #hero{
-  background:radial-gradient(ellipse 120% 80% at 60% 0%, rgba(201,168,76,0.07) 0%, transparent 60%),
-             radial-gradient(ellipse 60% 60% at 10% 80%, rgba(15,41,34,0.8) 0%, transparent 60%);
+  background:transparent;
 }
 .hero-grid{display:grid;grid-template-columns:1fr auto;gap:60px;align-items:center;max-width:1240px;margin:0 auto;width:100%}
 .hero-eyebrow{
@@ -1245,12 +1244,68 @@ footer p{font-size:12px;color:var(--muted)}
 .pain-flow .flow-lost{background:rgba(239,68,68,0.18);border-color:rgba(239,68,68,0.35);color:#F87171;font-weight:700}
 
 @media(max-width:900px){.pain-grid{grid-template-columns:1fr}}
+
+/* ── CINEMATIC INTRO ── */
+#intro-overlay{
+  position:fixed;inset:0;z-index:9999;
+  background:radial-gradient(ellipse 80% 80% at 50% 50%, rgba(15,41,34,0.6), var(--bg) 70%), var(--bg);
+  display:flex;align-items:center;justify-content:center;
+  animation:intro-out 0.9s cubic-bezier(.7,0,.3,1) 2.2s forwards;
+}
+#intro-logo{text-align:center;animation:intro-logo-in 1s cubic-bezier(.22,1,.36,1) forwards}
+#intro-mark{
+  width:96px;height:96px;border-radius:22px;margin:0 auto 22px;
+  overflow:hidden;
+  box-shadow:0 12px 50px rgba(201,168,76,0.4);
+  animation:intro-mark-glow 2s ease-in-out infinite;
+}
+#intro-name{
+  font-size:30px;font-weight:900;color:var(--text);letter-spacing:.02em;
+  opacity:0;animation:intro-fade-up .8s cubic-bezier(.22,1,.36,1) .35s forwards;
+}
+#intro-tag{
+  font-size:13px;font-weight:300;color:var(--gold);margin-top:8px;letter-spacing:.15em;
+  opacity:0;animation:intro-fade-up .8s cubic-bezier(.22,1,.36,1) .55s forwards;
+}
+@keyframes intro-logo-in{from{opacity:0;transform:scale(0.85)}to{opacity:1;transform:scale(1)}}
+@keyframes intro-fade-up{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@keyframes intro-mark-glow{0%,100%{box-shadow:0 12px 50px rgba(201,168,76,0.4)}50%{box-shadow:0 12px 70px rgba(201,168,76,0.65)}}
+@keyframes intro-out{to{opacity:0;visibility:hidden;transform:scale(1.08)}}
+
+/* ── CURSOR GLOW ── */
+#cursor-glow{
+  position:fixed;width:500px;height:500px;border-radius:50%;
+  background:radial-gradient(circle, rgba(201,168,76,0.06) 0%, transparent 60%);
+  pointer-events:none;z-index:1;
+  transform:translate(-50%,-50%);
+  left:50%;top:50%;
+  transition:left .35s cubic-bezier(.22,1,.36,1), top .35s cubic-bezier(.22,1,.36,1);
+  opacity:0;
+}
+
+/* ── HERO PARALLAX ── */
+#hero-bg{
+  position:absolute;inset:-10%;z-index:0;pointer-events:none;
+  background:radial-gradient(ellipse 120% 80% at 60% 0%, rgba(201,168,76,0.07) 0%, transparent 60%),
+             radial-gradient(ellipse 60% 60% at 10% 80%, rgba(15,41,34,0.8) 0%, transparent 60%);
+  will-change:transform;
+}
+#hero .hero-grid{position:relative;z-index:1}
 </style>
 </head>
 <body>
 
+<!-- Cinematic intro -->
+<div id="intro-overlay">
+  <div id="intro-logo">
+    <div id="intro-mark"><img src="icon-512.png" alt="Property Shortcut" style="width:100%;height:100%;object-fit:cover;border-radius:inherit"></div>
+    <div id="intro-name">Property Shortcut</div>
+    <div id="intro-tag">HOME OS · Sales Operating System</div>
+  </div>
+</div>
 
-
+<!-- Cursor glow -->
+<div id="cursor-glow"></div>
 
 <div id="dot-nav"></div>
 
@@ -1263,6 +1318,7 @@ footer p{font-size:12px;color:var(--muted)}
 
 <!-- ═══ 1. HERO ═══ -->
 <section id="hero">
+  <div id="hero-bg"></div>
   <div class="hero-grid">
     <div>
       <div class="hero-eyebrow reveal"><span></span> AI & Automation Initiative · HOME Real Estate</div>
@@ -2018,6 +2074,27 @@ function toggleScript() {
 
 // ── INIT ──
 buildFeatureValueTabs();
+
+// ── CURSOR GLOW ──
+const glow = document.getElementById('cursor-glow');
+document.addEventListener('mousemove', e => {
+  glow.style.left = e.clientX + 'px';
+  glow.style.top = e.clientY + 'px';
+  glow.style.opacity = '1';
+});
+document.addEventListener('mouseleave', () => { glow.style.opacity = '0'; });
+
+// ── HERO PARALLAX ──
+const heroBg = document.getElementById('hero-bg');
+const fpEl = document.getElementById('fullpage');
+if (heroBg && fpEl) {
+  fpEl.addEventListener('scroll', () => {
+    const y = fpEl.scrollTop;
+    if (y < window.innerHeight) {
+      heroBg.style.transform = `translateY(${y * 0.4}px) scale(1.05)`;
+    }
+  });
+}
 
 </script>
 </body>
